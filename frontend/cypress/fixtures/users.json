@@ -1,0 +1,12 @@
+{
+    "creator": {
+        "username": "testCreator",
+        "password": "test12345",
+        "id": "user123"
+    },
+    "player": {
+        "username": "testPlayer",
+        "password": "test12345",
+        "id": "user456"
+    }
+}

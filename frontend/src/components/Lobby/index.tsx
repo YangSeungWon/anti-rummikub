@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gameApi } from '../../api';
 import { Game } from '../../types';
+import { useAuth } from '../../context/AuthContext';
 import GameList from './GameList';
 import CreateGameForm from './CreateGameForm';
 import './Lobby.css';
@@ -13,6 +14,7 @@ const Lobby = () => {
     const [showCreateForm, setShowCreateForm] = useState<boolean>(false);
 
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         // 게임 목록 불러오기
@@ -73,9 +75,24 @@ const Lobby = () => {
         }
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/auth');
+    };
+
     return (
         <div className="lobby-container">
-            <h1>Anti-Rummikub: Improv Showdown</h1>
+            <header className="lobby-header">
+                <h1>Anti-Rummikub: Improv Showdown</h1>
+                <div className="user-info">
+                    {user && (
+                        <>
+                            <span className="username">{user.username}</span>
+                            <button onClick={handleLogout} className="logout-button">로그아웃</button>
+                        </>
+                    )}
+                </div>
+            </header>
 
             <div className="lobby-actions">
                 <button onClick={() => setShowCreateForm(true)}>방 만들기</button>

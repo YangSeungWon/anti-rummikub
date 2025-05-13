@@ -1,11 +1,15 @@
-import { Game, GameParticipant } from '../../types';
+import { GameState, GameParticipant } from '../../types';
+import { useAppDispatch } from '../../store/hooks';
+import { startGameAction } from '../../store/gameSlice';
+import { useParams } from 'react-router-dom';
 
 interface GameLobbyProps {
-    game: Game;
+    game: GameState;
     players: GameParticipant[];
     currentUserId: string;
     isReady: boolean;
     onReadyToggle: () => void;
+    isConnected: boolean;
 }
 
 const GameLobby = ({
@@ -14,14 +18,30 @@ const GameLobby = ({
     currentUserId,
     isReady,
     onReadyToggle,
+    isConnected,
 }: GameLobbyProps) => {
+    const { id: gameId } = useParams<{ id: string }>();
+    const dispatch = useAppDispatch();
     const isCreator = game.creatorId === currentUserId;
 
     // 모든 플레이어의 준비 완료 여부 확인
     const allPlayersReady = players.length > 1 && players.every(player => player.isReady);
 
+    // 게임 시작
+    const handleStartGame = () => {
+        if (gameId) {
+            dispatch(startGameAction(gameId));
+        }
+    };
+
     return (
         <div className="game-lobby">
+            <div className="connection-status">
+                <span className={isConnected ? 'connected' : 'disconnected'}>
+                    {isConnected ? '서버에 연결됨 ✓' : '연결 중...'}
+                </span>
+            </div>
+
             <div className="game-info">
                 <div className="game-details">
                     <p>
@@ -39,9 +59,20 @@ const GameLobby = ({
                     <button
                         className={`ready-button ${isReady ? 'ready' : ''}`}
                         onClick={onReadyToggle}
+                        disabled={!isConnected}
                     >
                         {isReady ? '준비 완료 ✓' : '준비하기'}
                     </button>
+
+                    {isCreator && allPlayersReady && (
+                        <button
+                            className="start-game-button"
+                            onClick={handleStartGame}
+                            disabled={!isConnected || !allPlayersReady}
+                        >
+                            게임 시작
+                        </button>
+                    )}
                 </div>
             </div>
 

@@ -1,0 +1,27 @@
+{
+    "testGame": {
+        "name": "Test Game Room",
+        "maxPlayers": 4,
+        "isPrivate": false
+    },
+    "topics": [
+        {
+            "id": "topic1",
+            "content": "스마트폰",
+            "category": "기술",
+            "difficulty": 1
+        },
+        {
+            "id": "topic2",
+            "content": "등산",
+            "category": "취미",
+            "difficulty": 2
+        },
+        {
+            "id": "topic3",
+            "content": "양자역학",
+            "category": "과학",
+            "difficulty": 3
+        }
+    ]
+}

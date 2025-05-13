@@ -1,30 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChatMessage } from '../../types';
-import { sendChatMessage, addEventListener, removeEventListener } from '../../socket';
 
 interface ChatPanelProps {
     gameId: string;
     userId: string;
     username: string;
+    messages: ChatMessage[];
+    onSendChat: (message: string) => void;
 }
 
-const ChatPanel = ({ gameId, userId, username }: ChatPanelProps) => {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+const ChatPanel = ({ gameId, userId, username, messages, onSendChat }: ChatPanelProps) => {
     const [inputValue, setInputValue] = useState<string>('');
     const chatContainerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        // 채팅 메시지 이벤트 리스너 등록
-        const newChatMessageHandler = (data: ChatMessage) => {
-            setMessages((prev) => [...prev, data]);
-        };
-
-        addEventListener('newChatMessage', newChatMessageHandler);
-
-        return () => {
-            removeEventListener('newChatMessage', newChatMessageHandler);
-        };
-    }, []);
 
     // 채팅 스크롤을 항상 아래로 유지
     useEffect(() => {
@@ -42,7 +29,7 @@ const ChatPanel = ({ gameId, userId, username }: ChatPanelProps) => {
         }
 
         // 소켓으로 채팅 메시지 전송
-        sendChatMessage(gameId, userId, username, inputValue.trim());
+        onSendChat(inputValue.trim());
 
         // 입력 필드 초기화
         setInputValue('');

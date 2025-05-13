@@ -1,0 +1,105 @@
+/* LoadingSpinner 스타일 */
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.spinner.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+
+.spinner-icon {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+.spinner.small .spinner-icon {
+  width: 20px;
+  height: 20px;
+  border-width: 3px;
+}
+
+.spinner.large .spinner-icon {
+  width: 50px;
+  height: 50px;
+  border-width: 5px;
+}
+
+.spinner-text {
+  margin-top: 0.5rem;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ErrorToast 스타일 */
+.error-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+  min-width: 250px;
+  max-width: 400px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.error-toast-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #721c24;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.5rem;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

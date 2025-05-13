@@ -1,0 +1,40 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "main": "src/index.js",
+    "directories": {
+        "test": "tests"
+    },
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js",
+        "test": "jest --runInBand --forceExit",
+        "test:watch": "jest --watch --runInBand",
+        "test:coverage": "jest --coverage --runInBand --forceExit",
+        "test:unit": "jest tests/unit --runInBand",
+        "test:integration": "jest tests/integration --runInBand",
+        "db:setup": "node -e \"require('./src/models/migrations').initializeDatabase()\""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "Anti-Rummikub: Improv Showdown 게임의 백엔드 서버",
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "helmet": "^8.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.0.0",
+        "pg": "^8.16.0",
+        "redis": "^5.0.1",
+        "socket.io": "^4.8.1",
+        "uuid": "^11.1.0"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "nodemon": "^3.1.10",
+        "supertest": "^7.1.1"
+    }
+}

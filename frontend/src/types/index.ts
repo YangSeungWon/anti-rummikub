@@ -82,6 +82,9 @@ export interface GameState {
   explanation?: Explanation;
   votes?: Vote;
   chatMessages: ChatMessage[];
+  // 상태 관리 필드
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 // API 응답 타입
