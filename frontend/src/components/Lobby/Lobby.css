@@ -1,0 +1,176 @@
+.lobby-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.lobby-container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.lobby-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.lobby-actions button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.lobby-actions button:hover {
+  background-color: #2980b9;
+}
+
+.error-message {
+  padding: 10px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* 게임 목록 스타일 */
+.game-list {
+  margin-top: 20px;
+}
+
+.game-list h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.game-list table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-list th,
+.game-list td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.game-list th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.game-list tr:hover {
+  background-color: #f9f9f9;
+}
+
+.game-list button {
+  padding: 6px 12px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.game-list button:hover {
+  background-color: #27ae60;
+}
+
+.game-list button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.game-list-loading,
+.game-list-empty {
+  padding: 20px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+/* 게임 생성 폼 스타일 */
+.create-game-form {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.create-game-form h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-group.checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.form-group.checkbox input {
+  margin-right: 10px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.form-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.form-actions button[type="submit"] {
+  background-color: #3498db;
+  color: white;
+}
+
+.form-actions button[type="submit"]:hover {
+  background-color: #2980b9;
+}
+
+.form-actions button[type="button"] {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.form-actions button[type="button"]:hover {
+  background-color: #c0392b;
+}
