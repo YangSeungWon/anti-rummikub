@@ -34,8 +34,8 @@ const Game = () => {
         // 게임 정보 불러오기
         dispatch(fetchGame(id));
 
-        // 게임 참가
-        if (connected) {
+        // 게임 참가: 이미 참가한 유저가 아니면만 join 시도
+        if (connected && !players.some(p => p.id === user.id)) {
             dispatch(joinGameAction(id));
         }
     }, [id, user, dispatch, connected]);

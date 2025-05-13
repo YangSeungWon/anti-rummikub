@@ -111,7 +111,13 @@ const joinGame = async (req, res) => {
     } catch (error) {
         console.error('게임 참가 오류:', error);
 
-        if (error.message.includes('가득') || error.message.includes('이미 참가') || error.message.includes('시작된 게임')) {
+        if (error.message.includes('이미 참가')) {
+            return res.status(409).json({
+                success: false,
+                message: error.message
+            });
+        }
+        if (error.message.includes('가득') || error.message.includes('시작된 게임')) {
             return res.status(400).json({
                 success: false,
                 message: error.message

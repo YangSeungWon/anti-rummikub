@@ -1,4 +1,4 @@
-import { GameState, GameParticipant } from '../../types';
+import type { GameState, GameParticipant } from '../../types';
 import { useAppDispatch } from '../../store/hooks';
 import { startGameAction } from '../../store/gameSlice';
 import { useParams } from 'react-router-dom';

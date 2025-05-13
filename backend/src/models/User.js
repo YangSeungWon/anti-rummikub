@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
 
 class User {
     // 사용자 생성
@@ -10,13 +11,14 @@ class User {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        const id = uuidv4();
         const query = `
-      INSERT INTO users (username, password) 
-      VALUES ($1, $2) 
+      INSERT INTO users (id, username, password) 
+      VALUES ($1, $2, $3) 
       RETURNING id, username, created_at
     `;
 
-        const result = await db.query(query, [username, hashedPassword]);
+        const result = await db.query(query, [id, username, hashedPassword]);
         return result.rows[0];
     }
 

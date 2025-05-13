@@ -11,11 +11,22 @@ const topicsRouter = require('./routes/topics');
 // 앱 초기화
 const app = express();
 
-// 미들웨어
-app.use(cors({
-    origin: config.CORS_ORIGIN,
+// CORS 설정 - 여러 오리진을 지원하는 함수로 변환
+const corsOptions = {
+    origin: function (origin, callback) {
+        // origin이 null일 수 있음 (ex: 같은 오리진에서의 요청, curl, Postman 등)
+        if (!origin || (Array.isArray(config.CORS_ORIGIN) && config.CORS_ORIGIN.includes(origin)) 
+            || origin === config.CORS_ORIGIN) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy violation'));
+        }
+    },
     credentials: true
-}));
+};
+
+// 미들웨어
+app.use(cors(corsOptions));
 app.use(helmet({
     contentSecurityPolicy: false
 }));

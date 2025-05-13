@@ -2,7 +2,7 @@ require('dotenv').config();
 
 module.exports = {
     // 서버 설정
-    PORT: process.env.PORT || 3000,
+    PORT: process.env.PORT || 3001,
     NODE_ENV: process.env.NODE_ENV || 'development',
 
     // 데이터베이스
@@ -22,5 +22,5 @@ module.exports = {
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
 
     // CORS
-    CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173'
+    CORS_ORIGIN: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:5173']
 }; 

@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import type { User } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1초
 

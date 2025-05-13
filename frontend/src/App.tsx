@@ -10,21 +10,21 @@ import Game from './components/Game';
 import './components/UI/UI.css';
 import './App.css';
 
-function App() {
-  // 앱 로드 시 소켓 연결 초기화
-  useEffect(() => {
-    initializeSocket();
+// Initialize socket outside of component to prevent re-initialization
+const socket = initializeSocket();
 
-    // 컴포넌트 언마운트 시 소켓 연결 종료
+function App() {
+  // App cleanup on unmount
+  useEffect(() => {
     return () => {
-      // disconnectSocket(); // 실제 앱에서는 필요할 수 있으나, SPA에서는 보통 유지
+      // Cleanup code if needed
     };
   }, []);
 
   return (
     <Provider store={store}>
-      <Router>
-        <AuthProvider>
+      <AuthProvider>
+        <Router>
           <div className="app">
             <Routes>
               {/* 인증 페이지 */}
@@ -41,8 +41,8 @@ function App() {
               <Route path="*" element={<Navigate to="/auth" replace />} />
             </Routes>
           </div>
-        </AuthProvider>
-      </Router>
+        </Router>
+      </AuthProvider>
     </Provider>
   );
 }

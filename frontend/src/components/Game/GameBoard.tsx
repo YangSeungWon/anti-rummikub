@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../store/hooks';
 import { startTurnAction, voteAction, endTurnAction } from '../../store/gameSlice';
-import { GameState } from '../../types';
+import type { GameState, GameParticipant } from '../../types';
 import Timer from './Timer';
 import VoteBar from './VoteBar';
 
@@ -232,7 +232,7 @@ const GameBoard = ({ gameState, currentUserId, onVote }: GameBoardProps) => {
             <div className="player-list">
                 <h3>참가자 ({players.length}명)</h3>
                 <ul>
-                    {players.map((player) => (
+                    {players.map((player: GameParticipant) => (
                         <li key={player.id} className={player.id === currentUserId ? 'current-player' : ''}>
                             {player.username}
                             {player.id === currentRound?.explainerId && ' (설명자)'}

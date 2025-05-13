@@ -11,7 +11,7 @@ import {
   turnEnded,
   addChatMessage,
 } from "../store/gameSlice";
-import type { ChatMessage, GameState } from "../types";
+import type { GameState, ChatMessage } from "../types";
 
 interface UseGameSocketProps {
   gameId: string;

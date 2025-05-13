@@ -30,6 +30,7 @@ export interface GameParticipant {
 
 // 라운드 타입
 export interface Round {
+  id?: string;
   roundNumber: number;
   explainerId: string;
   startTime?: string;
@@ -75,6 +76,9 @@ export interface ChatMessage {
 // 게임 상태 타입
 export interface GameState {
   id: string;
+  name?: string;
+  creatorId?: string;
+  maxPlayers?: number;
   status: "waiting" | "playing" | "finished";
   players: GameParticipant[];
   currentRound?: Round;
@@ -93,3 +97,19 @@ export interface ApiResponse<T> {
   message?: string;
   data?: T;
 }
+
+// Export all types as a namespace to avoid direct imports
+const Types = {
+  User,
+  Game,
+  GameParticipant,
+  Round,
+  Topic,
+  Explanation,
+  Vote,
+  ChatMessage,
+  GameState,
+  ApiResponse,
+};
+
+export default Types;

@@ -1,4 +1,5 @@
-import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { authApi } from '../api';
 import type { User } from '../types';
 
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // 로컬 스토리지에서 인증 정보 로드
     useEffect(() => {
+        console.log('AuthProvider useEffect 실행');
         const loadAuthData = async () => {
             try {
                 const storedToken = localStorage.getItem('token');
@@ -54,7 +56,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 // 토큰이 있으면 서버에서 현재 사용자 정보 검증
                 if (storedToken) {
                     try {
+                        console.log('Calling authApi.getMe()...');
                         const response = await authApi.getMe();
+                        console.log('authApi.getMe() result:', response);
                         if (response.data.success) {
                             setUser(response.data.user);
                             localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -163,6 +167,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         isAuthenticated,
     };
+
+    if (loading) {
+        return <div>로딩 중...</div>;
+    }
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }; 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gameApi } from '../../api';
-import { Game } from '../../types';
+import type { Game } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import GameList from './GameList';
 import CreateGameForm from './CreateGameForm';
@@ -67,7 +67,12 @@ const Lobby = () => {
                 // 참가한 게임으로 이동
                 navigate(`/game/${gameId}`);
             }
-        } catch (err) {
+        } catch (err: any) {
+            // 409: 이미 참가한 경우 바로 게임방으로 이동
+            if (err?.response?.status === 409) {
+                navigate(`/game/${gameId}`);
+                return;
+            }
             console.error('게임 참가 중 오류가 발생했습니다.', err);
             setError('게임 참가 중 오류가 발생했습니다.');
         } finally {

@@ -1,9 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import {
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type {
   GameState,
-  Game,
   GameParticipant,
-  Round,
   Topic,
   Vote,
   ChatMessage,
