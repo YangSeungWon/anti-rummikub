@@ -41,10 +41,10 @@ The project implements a multi-layered testing approach:
 
 ### Backend Tests
 
-| Category    | Test Files                | Coverage | Key Areas Tested                                |
-| ----------- | ------------------------- | -------- | ----------------------------------------------- |
-| Unit Tests  | `scoreCalculator.test.js` | ~95%     | Score calculation logic for different scenarios |
-| Integration | `gameFlow.test.js`        | ~70%     | Complete game flow from creation to completion  |
+| Category    | Test Files                                             | Coverage | Key Areas Tested                                            |
+| ----------- | ------------------------------------------------------ | -------- | ----------------------------------------------------------- |
+| Unit Tests  | `scoreCalculator.test.js`<br>`auth.middleware.test.js` | ~95%     | Score calculation logic<br>Authentication middleware checks |
+| Integration | `gameFlow.test.js`                                     | ~70%     | Complete game flow from creation to completion              |
 
 ### Backend Test Details
 
@@ -53,54 +53,182 @@ The project implements a multi-layered testing approach:
 - **Score Calculator Tests**:
 
   - Testing different voting scenarios (all positive, mixed, all negative)
-  - Handling edge cases (no votes, high difficulty)
+  - Handling edge cases (no votes, high difficulty, negative difficulty)
   - Verifying score calculation formulas with different difficulties
   - Boundary testing (minimum/maximum scores)
+  - Error handling for malformed input data
 
-- **Model Validation Tests**:
-  - User model: Username/password validation
-  - Game model: Player limits, status transitions
-  - Round model: Vote validation, state machine transitions
+- **Auth Middleware Tests**:
+  - JWT token validation and verification
+  - Proper error handling for missing/invalid tokens
+  - User data extraction from tokens
 
-#### Integration Testing
+## MongoDB In-Memory Testing Guide
 
-- **Game Flow Integration** (`gameFlow.test.js`):
+### 1. Overview
 
-  - User creation and authentication
-  - Game creation by first user
-  - Additional players joining the game
-  - Ready status management
-  - Game initialization
-  - Round progression
-  - Vote submission and tallying
-  - Score calculation
-  - Game completion
+This guide explains how to set up in-memory MongoDB testing with **mongodb-memory-server**, which allows testing Mongoose queries without an external MongoDB server.
 
-- **API Security Testing**:
+### 2. Installation
 
-  - Authentication middleware validation
-  - Permission checks (game creator vs participants)
-  - Input validation and error response formatting
+```bash
+npm install --save-dev mongodb-memory-server jest @types/jest ts-jest
+# No need to install mongoose and @types/mongoose if already using Mongoose
+```
 
-- **Database Integration**:
-  - Document creation/retrieval/update testing
-  - Reference integrity between models (User -> Game -> Round)
+### 3. Test Initialization Script
 
-#### Backend Test Implementation Techniques
+Create a `tests/` directory in the project root and add a **`setup-mongo.ts`** file:
 
-- **Test Database**: Dedicated MongoDB test instance with isolated data
-- **Test Fixtures**: Pre-populated test data for consistent test execution
-- **Before/After Hooks**: Database setup and cleanup between test runs
-- **HTTP Request Simulation**: Using Supertest to validate API endpoints
-- **JWT Authentication**: Testing token generation and validation
-- **Mocked Socket Events**: Simulating real-time communication
+```ts
+// tests/setup-mongo.ts
+import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
 
-### End-to-End Tests
+let mongoServer: MongoMemoryServer;
 
-| Test File         | Key Scenarios                                          |
-| ----------------- | ------------------------------------------------------ |
-| `fullGame.cy.ts`  | User registration, game creation, joining, gameplay    |
-| `game-flow.cy.ts` | Game initialization, round progression, error handling |
+export const connect = async () => {
+  mongoServer = await MongoMemoryServer.create();
+  const uri = mongoServer.getUri();
+  await mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+};
+
+export const closeDatabase = async () => {
+  await mongoose.connection.dropDatabase();
+  await mongoose.connection.close();
+  await mongoServer.stop();
+};
+
+export const clearDatabase = async () => {
+  const { collections } = mongoose.connection;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+};
+```
+
+### 4. Jest Configuration (`jest.config.js`)
+
+```js
+module.exports = {
+  preset: "ts-jest",
+  testEnvironment: "node",
+  setupFilesAfterEnv: ["<rootDir>/tests/global-setup.ts"],
+  // Or directly specify: setupFilesAfterEnv: ['<rootDir>/tests/setup-mongo.ts']
+  globals: {
+    "ts-jest": {
+      tsconfig: "tsconfig.json",
+    },
+  },
+  moduleFileExtensions: ["ts", "js", "json"],
+  testMatch: ["**/tests/**/*.test.(ts|js)"],
+};
+```
+
+### 5. Global Setup/Teardown (`global-setup.ts`)
+
+```ts
+// tests/global-setup.ts
+import { connect, closeDatabase, clearDatabase } from "./setup-mongo";
+
+beforeAll(async () => {
+  await connect();
+});
+
+afterEach(async () => {
+  await clearDatabase();
+});
+
+afterAll(async () => {
+  await closeDatabase();
+});
+```
+
+- `beforeAll`: Start in-memory MongoDB and connect Mongoose
+- `afterEach`: Clear collection data after each test
+- `afterAll`: Clean up DB and stop server after all tests
+
+### 6. Test Code Example
+
+```ts
+// tests/integration/gameFlow.test.ts
+import request from "supertest";
+import app from "../src/app"; // Express app
+import { connect, clearDatabase, closeDatabase } from "./setup-mongo";
+
+beforeAll(async () => {
+  await connect();
+});
+afterEach(async () => {
+  await clearDatabase();
+});
+afterAll(async () => {
+  await closeDatabase();
+});
+
+describe("Game Flow Integration Tests", () => {
+  let jwt: string;
+  it("should sign up and login", async () => {
+    await request(app)
+      .post("/auth/signup")
+      .send({ username: "test", password: "pass" })
+      .expect(200);
+    const res = await request(app)
+      .post("/auth/login")
+      .send({ username: "test", password: "pass" })
+      .expect(200);
+    jwt = res.body.token;
+    expect(jwt).toBeDefined();
+  });
+
+  it("should create → retrieve → join game flow", async () => {
+    const createRes = await request(app)
+      .post("/games")
+      .set("Authorization", `Bearer ${jwt}`)
+      .send({ name: "room1", maxPlayers: 4 })
+      .expect(200);
+    const gameId = createRes.body.gameId;
+    await request(app)
+      .get(`/games/${gameId}`)
+      .set("Authorization", `Bearer ${jwt}`)
+      .expect(200);
+    await request(app)
+      .post(`/games/${gameId}/join`)
+      .set("Authorization", `Bearer ${jwt}`)
+      .expect(200);
+  });
+
+  // Additional scenarios for draw, start, vote, end, etc.
+});
+```
+
+### 7. CI Integration
+
+Add test scripts to `package.json`:
+
+```json
+"scripts": {
+  "test": "jest --runInBand",
+  "test:watch": "jest --watch"
+}
+```
+
+- `--runInBand`: Run tests sequentially to prevent MongoDB memory server conflicts
+- Execute `npm test` in CI pipelines like GitHub Actions
+
+### 8. Summary
+
+1. Install **mongodb-memory-server**
+2. Create `setup-mongo.ts` for in-memory DB initialization/cleanup
+3. Register `setupFilesAfterEnv` in Jest config
+4. Use lifecycle hooks in global setup file for connect/clear/close
+5. Use Mongoose models directly in integration tests
+6. Add `npm test` to CI pipeline
+
+This setup allows integration tests to run without an external database while still validating actual queries!
 
 ## Test Configuration
 
