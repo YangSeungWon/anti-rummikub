@@ -1,58 +1,18 @@
-const express = require('express');
-const http = require('http');
-const cors = require('cors');
-const helmet = require('helmet');
-const config = require('./config/env');
+/**
+ * 메인 진입점 파일
+ * 
+ * 실제 서버 실행을 위해 server.js를 로드합니다.
+ * 테스트 환경에서는 app.js만 사용하고 server.js는 로드하지 않습니다.
+ */
 
-// 라우터
-const gamesRouter = require('./routes/games');
-const topicsRouter = require('./routes/topics');
+// 환경 변수 설정
+require('dotenv').config();
 
-// WebSocket
-const { initializeWebSocket } = require('./websocket');
-
-// 앱 초기화
-const app = express();
-const server = http.createServer(app);
-
-// 미들웨어
-app.use(cors({
-    origin: config.CORS_ORIGIN,
-    credentials: true
-}));
-app.use(helmet({
-    contentSecurityPolicy: false
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// 기본 라우트
-app.get('/', (req, res) => {
-    res.json({ message: 'Anti-Rummikub API 서버가 정상 작동 중입니다.' });
-});
-
-// API 라우터
-app.use('/api/games', gamesRouter);
-app.use('/api/topics', topicsRouter);
-
-// 404 핸들러
-app.use((req, res, next) => {
-    res.status(404).json({ message: '요청한 리소스를 찾을 수 없습니다.' });
-});
-
-// 에러 핸들러
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-});
-
-// WebSocket 초기화
-initializeWebSocket(server);
-
-// 서버 시작
-const PORT = config.PORT;
-server.listen(PORT, () => {
-    console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
-});
-
-module.exports = { app, server }; 
+// 서버 시작 (이 모듈을 직접 실행할 때만)
+if (require.main === module) {
+    require('./server');
+    console.log(`환경: ${process.env.NODE_ENV || 'development'}`);
+} else {
+    // 다른 모듈에서 임포트할 때는 app 객체만 노출
+    module.exports = require('./app');
+} 
