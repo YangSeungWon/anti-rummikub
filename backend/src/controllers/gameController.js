@@ -395,6 +395,34 @@ const endGame = async (req, res) => {
     }
 };
 
+/**
+ * 게임에 봇 1명 추가
+ */
+const addBot = async (req, res) => {
+    try {
+        const { gameId } = req.params;
+        const gameState = await Game.addBotToGame(gameId);
+        res.status(200).json({ success: true, message: '봇이 추가되었습니다.', gameState });
+    } catch (error) {
+        console.error('봇 추가 오류:', error);
+        res.status(500).json({ success: false, message: '봇 추가 중 오류가 발생했습니다.' });
+    }
+};
+
+/**
+ * 남은 자리를 모두 봇으로 채우기
+ */
+const fillBots = async (req, res) => {
+    try {
+        const { gameId } = req.params;
+        const gameState = await Game.fillBotsToGame(gameId);
+        res.status(200).json({ success: true, message: '남은 자리를 모두 봇으로 채웠습니다.', gameState });
+    } catch (error) {
+        console.error('봇 자동 채우기 오류:', error);
+        res.status(500).json({ success: false, message: '봇 자동 채우기 중 오류가 발생했습니다.' });
+    }
+};
+
 module.exports = {
     getGames,
     createGame,
@@ -405,5 +433,7 @@ module.exports = {
     startTurn,
     vote,
     endTurn,
-    endGame
+    endGame,
+    addBot,
+    fillBots
 }; 

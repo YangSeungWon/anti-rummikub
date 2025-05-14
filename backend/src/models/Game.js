@@ -245,11 +245,12 @@ class Game {
             const topic = topicResult.rows[0];
 
             // 첫 라운드 생성
+            const roundId = uuidv4();
             await client.query(`
         INSERT INTO rounds (
-          game_id, round_number, explainer_id, topic_id, status, is_bonus
-        ) VALUES ($1, $2, $3, $4, $5, $6)
-      `, [gameId, 1, firstExplainerId, topic.id, 'waiting', false]);
+          id, game_id, round_number, explainer_id, topic_id, status, is_bonus
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, [roundId, gameId, 1, firstExplainerId, topic.id, 'waiting', false]);
 
             await client.query('COMMIT');
         } catch (error) {
@@ -274,6 +275,62 @@ class Game {
             createdAt: gameData.created_at,
             creatorId: gameData.creator_id
         };
+    }
+
+    // 봇 1명 추가
+    static async addBotToGame(gameId) {
+        // 1. 게임 정보 및 현재 인원 확인
+        const game = await this.findById(gameId);
+        if (!game) throw new Error('게임을 찾을 수 없습니다.');
+        if (game.status !== 'waiting') throw new Error('이미 시작된 게임에는 봇을 추가할 수 없습니다.');
+        if (game.currentPlayers >= game.maxPlayers) throw new Error('게임 방이 가득 찼습니다.');
+
+        // 2. 봇 유저 생성 (users 테이블에 is_bot=true, username: 'Bot N')
+        const botUsername = await this._generateBotUsername();
+        const botId = uuidv4();
+        await db.query(
+            'INSERT INTO users (id, username, is_bot) VALUES ($1, $2, true)',
+            [botId, botUsername]
+        );
+
+        // 3. 참가자 추가 (봇은 is_ready = true)
+        await db.query(
+            'INSERT INTO game_participants (game_id, user_id, is_ready, score) VALUES ($1, $2, true, 0)',
+            [gameId, botId]
+        );
+        await db.query(
+            'UPDATE games SET current_players = current_players + 1 WHERE id = $1',
+            [gameId]
+        );
+        return this.getGameState(gameId);
+    }
+
+    // 남은 자리를 모두 봇으로 채우기
+    static async fillBotsToGame(gameId) {
+        const game = await this.findById(gameId);
+        if (!game) throw new Error('게임을 찾을 수 없습니다.');
+        if (game.status !== 'waiting') throw new Error('이미 시작된 게임에는 봇을 추가할 수 없습니다.');
+        const toAdd = game.maxPlayers - game.currentPlayers;
+        for (let i = 0; i < toAdd; i++) {
+            await this.addBotToGame(gameId);
+        }
+        return this.getGameState(gameId);
+    }
+
+    // 봇 이름 생성 (Bot 1, Bot 2, ...) - 비어있는 번호를 찾아 할당
+    static async _generateBotUsername() {
+        const result = await db.query(
+            "SELECT username FROM users WHERE username LIKE 'Bot %'"
+        );
+        const usedNumbers = new Set(
+            result.rows
+                .map(row => row.username)
+                .map(name => parseInt(name.replace('Bot ', '')))
+                .filter(n => !isNaN(n))
+        );
+        let n = 1;
+        while (usedNumbers.has(n)) n++;
+        return `Bot ${n}`;
     }
 }
 

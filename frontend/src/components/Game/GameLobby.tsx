@@ -2,6 +2,8 @@ import type { GameState, GameParticipant } from '../../types';
 import { useAppDispatch } from '../../store/hooks';
 import { startGameAction } from '../../store/gameSlice';
 import { useParams } from 'react-router-dom';
+import { gameApi } from '../../api';
+import { useState } from 'react';
 
 interface GameLobbyProps {
     game: GameState;
@@ -23,6 +25,7 @@ const GameLobby = ({
     const { id: gameId } = useParams<{ id: string }>();
     const dispatch = useAppDispatch();
     const isCreator = game.creatorId === currentUserId;
+    const [loading, setLoading] = useState(false);
 
     // 모든 플레이어의 준비 완료 여부 확인
     const allPlayersReady = players.length > 1 && players.every(player => player.isReady);
@@ -32,6 +35,24 @@ const GameLobby = ({
         if (gameId) {
             dispatch(startGameAction(gameId));
         }
+    };
+
+    // 봇 1명 추가
+    const handleAddBot = async () => {
+        if (!gameId) return;
+        setLoading(true);
+        await gameApi.addBotToGame(gameId);
+        setLoading(false);
+        window.location.reload(); // 간단히 새로고침(추후 상태관리로 개선 가능)
+    };
+
+    // 남은 자리를 모두 봇으로 채우기
+    const handleFillBots = async () => {
+        if (!gameId) return;
+        setLoading(true);
+        await gameApi.fillBotsToGame(gameId);
+        setLoading(false);
+        window.location.reload();
     };
 
     return (
@@ -76,6 +97,17 @@ const GameLobby = ({
                 </div>
             </div>
 
+            {isCreator && (
+                <div style={{ marginBottom: 16 }}>
+                    <button onClick={handleAddBot} disabled={loading || players.length >= game.maxPlayers}>
+                        봇 초대
+                    </button>
+                    <button onClick={handleFillBots} disabled={loading || players.length >= game.maxPlayers} style={{ marginLeft: 8 }}>
+                        모두 봇으로 채우기
+                    </button>
+                </div>
+            )}
+
             <div className="players-list">
                 <h2>참가자 목록</h2>
                 <table>
@@ -90,6 +122,7 @@ const GameLobby = ({
                             <tr key={player.id} className={player.id === currentUserId ? 'current-player' : ''}>
                                 <td>
                                     {player.username}
+                                    {player.username.includes('Bot') && ' (Bot)'}
                                     {player.id === currentUserId && ' (나)'}
                                     {player.id === game.creatorId && ' (방장)'}
                                 </td>

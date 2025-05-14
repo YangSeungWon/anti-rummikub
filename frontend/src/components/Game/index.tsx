@@ -33,12 +33,19 @@ const Game = () => {
 
         // 게임 정보 불러오기
         dispatch(fetchGame(id));
+    }, [id, user, dispatch]);
 
-        // 게임 참가: 이미 참가한 유저가 아니면만 join 시도
-        if (connected && !players.some(p => p.id === user.id)) {
+    useEffect(() => {
+        if (!id || !user || !connected) return;
+        // players가 비어있으면(아직 fetchGame 결과가 반영되지 않았으면) join 시도하지 않음
+        if (players.length === 0) return;
+        // 디버깅: players와 user.id를 콘솔에 출력
+        console.log('players:', players.map(p => p.id), 'user.id:', user.id);
+        // 이미 참가한 유저가 아니면만 join 시도
+        if (!players.some(p => p.id === user.id)) {
             dispatch(joinGameAction(id));
         }
-    }, [id, user, dispatch, connected]);
+    }, [id, user, connected, players, dispatch]);
 
     const handleReadyToggle = () => {
         ready();

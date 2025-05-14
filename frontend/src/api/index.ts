@@ -119,6 +119,12 @@ export const gameApi = {
   // 턴 종료
   endTurn: (id: string, data: { roundId: string }) =>
     api.post(`/games/${id}/end`, data),
+
+  // 봇 1명 추가
+  addBotToGame: (id: string) => api.post(`/games/${id}/add-bot`),
+
+  // 남은 자리를 모두 봇으로 채우기
+  fillBotsToGame: (id: string) => api.post(`/games/${id}/fill-bots`),
 };
 
 // 주제 관련 API
